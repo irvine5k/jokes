@@ -13,20 +13,11 @@ class JokePage extends StatefulWidget {
 class _JokePageState extends State<JokePage> {
   bool showPunchline = false;
 
-  late Timer timer;
-
-  @override
-  void initState() {
-    super.initState();
-    timer = Timer(
-      const Duration(seconds: 3),
-      context.read<JokeBloc>().getRandomJoke,
-    );
-  }
+  Timer? timer;
 
   @override
   void dispose() {
-    timer.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
@@ -60,7 +51,17 @@ class _JokePageState extends State<JokePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 InkWell(
-                  onTap: () => setState(() => showPunchline = true),
+                  onTap: () {
+                    setState(() => showPunchline = true);
+
+                    timer = Timer(
+                      const Duration(seconds: 3),
+                      () {
+                        setState(() => showPunchline = false);
+                        context.read<JokeBloc>().getRandomJoke();
+                      },
+                    );
+                  },
                   child: Text(
                     joke.setup,
                     textAlign: TextAlign.center,
